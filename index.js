@@ -2,6 +2,11 @@ var THREE = require('three'),
     renderer = require('./lib/renderer'),
     Primitive = renderer.Primitive;
 
+var UNIT_X = new THREE.Vector3(1, 0, 0);
+var UNIT_Y = new THREE.Vector3(0, 1, 0);
+var UNIT_Z = new THREE.Vector3(0, 0, 1);
+var DEG_TO_RAD = Math.PI / 180;
+
 function stringToColor(str) {
     switch (str) {
     case 'red':
@@ -64,10 +69,10 @@ function _drawLineStrip(points, color) {
     renderer.addPrimitive(p);
 }
 
-var UNIT_X = new THREE.Vector3(1, 0, 0);
-var UNIT_Y = new THREE.Vector3(0, 1, 0);
-var UNIT_Z = new THREE.Vector3(0, 0, 1);
-
+/**
+ * Draws an arrow pointing from pStart to pEnd.
+ * Specify the size of the arrow with arrowSize.
+ */
 function _drawArrow(pStart, pEnd, arrowSize, color) {
     var p = new Primitive();
     p.color = toColor(color);
@@ -165,6 +170,49 @@ function _drawBoundingBox(min, max, color) {
 }
 
 /**
+ * Draw a sphere at pos with radius r.
+ */
+function _drawSphere(pos, r, color) {
+    var p = new Primitive();
+    p.color = toColor(color);
+
+    // Decreasing these angles will increase complexity of sphere.
+    var dtheta = 35; var dphi = 35;
+
+    for (var theta = -90; theta <= (90 - dtheta); theta += dtheta) {
+        for (var phi = 0; phi <= (360 - dphi); phi += dphi) {
+            p.vertices.push(new THREE.Vector3(
+                pos.x + r * Math.cos(theta * DEG_TO_RAD) * Math.cos(phi * DEG_TO_RAD),
+                pos.y + r * Math.cos(theta * DEG_TO_RAD) * Math.sin(phi * DEG_TO_RAD),
+                pos.z + r * Math.sin(theta * DEG_TO_RAD)
+            ));
+
+            p.vertices.push(new THREE.Vector3(
+                pos.x + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.cos(phi * DEG_TO_RAD),
+                pos.y + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.sin(phi * DEG_TO_RAD),
+                pos.z + r * Math.sin((theta + dtheta) * DEG_TO_RAD)
+            ));
+
+            p.vertices.push(new THREE.Vector3(
+                pos.x + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.cos((phi + dphi) * DEG_TO_RAD),
+                pos.y + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.sin((phi + dphi) * DEG_TO_RAD),
+                pos.z + r * Math.sin((theta + dtheta) * DEG_TO_RAD)
+            ));
+
+            if ((theta > -90) && (theta < 90)) {
+                p.vertices.push(new THREE.Vector3(
+                    pos.x + r * Math.cos(theta * DEG_TO_RAD) * Math.cos((phi + dphi) * DEG_TO_RAD),
+                    pos.y + r * Math.cos(theta * DEG_TO_RAD) * Math.sin((phi + dphi) * DEG_TO_RAD),
+                    pos.z + r * Math.sin(theta * DEG_TO_RAD)
+                ));
+            }
+        }
+    }
+
+    renderer.addPrimitive(p);
+}
+
+/**
  * Render all objects drawn this frame into the scene.
  */
 function _render(scene) {
@@ -176,6 +224,6 @@ module.exports = {
     drawLineStrip: _drawLineStrip,
     drawArrow: _drawArrow,
     drawBoundingBox: _drawBoundingBox,
-    // drawSphere: _drawSphere,
+    drawSphere: _drawSphere,
     render: _render
 };
