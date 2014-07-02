@@ -5,11 +5,6 @@ three-debug-draw is a browserify-friendly plugin for three.js to aid in the draw
 
 Quickly and easily draw shapes from anywhere in your code to help debug and visualize.
 
-Some usage examples are:
- * Visualize the player facing direction with arrows.
- * Display enemy pathfinding information with lines and spheres.
- * Display collision volumes with a bounding box.
-
 Currently supported shapes are:
  * Line
  * Line Strip
@@ -17,13 +12,14 @@ Currently supported shapes are:
  * Axis-Aligned Bounding Box
  * Sphere
 
-![Alt text](/../screenshots/example01.png?raw=true "Example")
-
-For the complete example code, see `test/index.test.js`.
+Some usage examples are:
+ * Visualize the player facing direction with arrows.
+ * Display enemy pathfinding information with lines and spheres.
+ * Display collision volumes with a bounding box.
 
 ## Installation
 ``` bash
-npm install three-effectcomposer
+npm install three-debug-draw
 ```
 
 ## Usage
@@ -46,3 +42,9 @@ DbgDraw.drawLine(
     'red');
 
 ```
+
+## Example
+
+![Alt text](/../screenshots/example01.png?raw=true "Example")
+
+For the complete example code, see `test/index.test.js`, or open `example/index.html` to see the browserified results.
