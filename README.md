@@ -45,6 +45,8 @@ DbgDraw.drawLine(
 
 ## Example
 
+Run the example online: [View Example](http://doggan.github.io/three-debug-draw/example/index.html)
+
 ![Alt text](/../screenshots/example01.png?raw=true "Example")
 
 For the complete example code, see `test/index.test.js`, or open `example/index.html` to see the browserified results.
