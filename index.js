@@ -64,6 +64,59 @@ function _drawLineStrip(points, color) {
     renderer.addPrimitive(p);
 }
 
+var UNIT_X = new THREE.Vector3(1, 0, 0);
+var UNIT_Y = new THREE.Vector3(0, 1, 0);
+var UNIT_Z = new THREE.Vector3(0, 0, 1);
+
+function _drawArrow(pStart, pEnd, arrowSize, color) {
+    var p = new Primitive();
+    p.color = toColor(color);
+
+    p.vertices.push(pStart);
+    p.vertices.push(pEnd);
+
+    var dir = new THREE.Vector3();
+    dir.subVectors(pEnd, pStart);
+    dir.normalize();
+
+    var right = new THREE.Vector3();
+    var dot = dir.dot(UNIT_Y);
+    if (dot > 0.99 || dot < -0.99) {
+        right.crossVectors(dir, UNIT_X);
+    } else {
+        right.crossVectors(dir, UNIT_Y);
+    }
+
+    var top = new THREE.Vector3();
+    top.crossVectors(right, dir);
+
+    dir.multiplyScalar(arrowSize);
+    right.multiplyScalar(arrowSize);
+    top.multiplyScalar(arrowSize);
+
+    // Right slant.
+    var tmp = new THREE.Vector3();
+    p.vertices.push(pEnd);
+    p.vertices.push(tmp.addVectors(pEnd, right).sub(dir));
+
+    // Left slant.
+    tmp = new THREE.Vector3();
+    p.vertices.push(pEnd);
+    p.vertices.push(tmp.subVectors(pEnd, right).sub(dir));
+
+    // Top slant.
+    tmp = new THREE.Vector3();
+    p.vertices.push(pEnd);
+    p.vertices.push(tmp.addVectors(pEnd, top).sub(dir));
+
+    // Bottom slant.
+    tmp = new THREE.Vector3();
+    p.vertices.push(pEnd);
+    p.vertices.push(tmp.subVectors(pEnd, top).sub(dir));
+
+    renderer.addPrimitive(p);
+}
+
 /**
  * Draws a bounding box defined by the min/max coordinates.
  *
@@ -119,10 +172,9 @@ function _render(scene) {
 }
 
 module.exports = {
-    // drawPoint: _drawPoint,
     drawLine: _drawLine,
     drawLineStrip: _drawLineStrip,
-    // drawArrow: _drawArrow,
+    drawArrow: _drawArrow,
     drawBoundingBox: _drawBoundingBox,
     // drawSphere: _drawSphere,
     render: _render
