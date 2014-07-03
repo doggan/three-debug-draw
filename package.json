@@ -15,9 +15,9 @@
     "3d"
   ],
   "homepage": "https://github.com/doggan/three-debug-draw",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/doggan/three-debug-draw.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doggan/three-debug-draw.git"
   },
   "bugs": {
     "url": "https://github.com/doggan/three-debug-draw/issues"
@@ -28,6 +28,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "browserify": "^4.2.0",
     "three": "^0.67.0"
   }
 }
