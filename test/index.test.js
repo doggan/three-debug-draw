@@ -1,5 +1,5 @@
-var DbgDraw = require('./../index'),
-    THREE = require('three');
+var THREE = require('three'),
+    DbgDraw = require('./../index')(THREE);
 
 var container, stats;
 var camera, scene, renderer;

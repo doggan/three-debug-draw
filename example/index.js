@@ -1,316 +1,317 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var THREE = require('three'),
-    renderer = require('./lib/renderer'),
-    Primitive = renderer.Primitive;
+module.exports = function(THREE) {
+    var renderer = require('./lib/renderer')(THREE),
+        Primitive = renderer.Primitive;
 
-var UNIT_X = new THREE.Vector3(1, 0, 0);
-var UNIT_Y = new THREE.Vector3(0, 1, 0);
-var UNIT_Z = new THREE.Vector3(0, 0, 1);
-var DEG_TO_RAD = Math.PI / 180;
+    var UNIT_X = new THREE.Vector3(1, 0, 0);
+    var UNIT_Y = new THREE.Vector3(0, 1, 0);
+    var UNIT_Z = new THREE.Vector3(0, 0, 1);
+    var DEG_TO_RAD = Math.PI / 180;
 
-function stringToColor(str) {
-    switch (str) {
-    case 'red':
-        return 0xFF0000;
-    case 'green':
-        return 0x00FF00;
-    case 'blue':
-        return 0x0000FF;
-    case 'yellow':
-        return 0xFFFF00;
-    case 'magenta':
-        return 0xFF00FF;
-    case 'cyan':
-        return 0x00FFFF;
-    case 'white':
-        return 0xFFFFFF;
-    default:
-        return 0x000000;
-    }
-}
-
-function toColor(arg) {
-    if (typeof arg == 'string') {
-        return stringToColor(arg);
-    } else {
-        return arg;
-    }
-}
-
-/**
- * Draws a single line from v0 to v1 with the given color.
- *
- * Each point is a THREE.Vector3 object.
- */
-function _drawLine(v0, v1, color) {
-    var p = new Primitive();
-
-    p.vertices = [v0, v1];
-    p.color = toColor(color);
-
-    renderer.addPrimitive(p);
-}
-
-/**
- * Draws a strip of connected lines using the specified points[].
- *
- * Each point is a THREE.Vector3 object.
- */
-function _drawLineStrip(points, color) {
-    if (points.length < 2) {
-        console.error('Line strips must have at least 2 points.');
-        return;
-    }
-
-    var p = new Primitive();
-
-    p.vertices = points;
-    p.color = toColor(color);
-
-    renderer.addPrimitive(p);
-}
-
-/**
- * Draws an arrow pointing from pStart to pEnd.
- * Specify the size of the arrow with arrowSize.
- */
-function _drawArrow(pStart, pEnd, arrowSize, color) {
-    var p = new Primitive();
-    p.color = toColor(color);
-
-    p.vertices.push(pStart);
-    p.vertices.push(pEnd);
-
-    var dir = new THREE.Vector3();
-    dir.subVectors(pEnd, pStart);
-    dir.normalize();
-
-    var right = new THREE.Vector3();
-    var dot = dir.dot(UNIT_Y);
-    if (dot > 0.99 || dot < -0.99) {
-        right.crossVectors(dir, UNIT_X);
-    } else {
-        right.crossVectors(dir, UNIT_Y);
-    }
-
-    var top = new THREE.Vector3();
-    top.crossVectors(right, dir);
-
-    dir.multiplyScalar(arrowSize);
-    right.multiplyScalar(arrowSize);
-    top.multiplyScalar(arrowSize);
-
-    // Right slant.
-    var tmp = new THREE.Vector3();
-    p.vertices.push(pEnd);
-    p.vertices.push(tmp.addVectors(pEnd, right).sub(dir));
-
-    // Left slant.
-    tmp = new THREE.Vector3();
-    p.vertices.push(pEnd);
-    p.vertices.push(tmp.subVectors(pEnd, right).sub(dir));
-
-    // Top slant.
-    tmp = new THREE.Vector3();
-    p.vertices.push(pEnd);
-    p.vertices.push(tmp.addVectors(pEnd, top).sub(dir));
-
-    // Bottom slant.
-    tmp = new THREE.Vector3();
-    p.vertices.push(pEnd);
-    p.vertices.push(tmp.subVectors(pEnd, top).sub(dir));
-
-    renderer.addPrimitive(p);
-}
-
-/**
- * Draws a bounding box defined by the min/max coordinates.
- *
- * min/max are THREE.Vector3 objects.
- */
-function _drawBoundingBox(min, max, color) {
-    var p = new Primitive();
-    p.color = toColor(color);
-
-    var halfExtents = new THREE.Vector3();
-    halfExtents.subVectors(max, min);
-    halfExtents.multiplyScalar(0.5);
-    var center = new THREE.Vector3();
-    center.addVectors(max, min);
-    center.multiplyScalar(0.5);
-
-    var edgeCoord = [1, 1, 1];
-
-    for (var i = 0; i < 4; i++) {
-        for (var j = 0; j < 3; j++) {
-            var pa = new THREE.Vector3(
-                edgeCoord[0] * halfExtents.x,
-                edgeCoord[1] * halfExtents.y,
-                edgeCoord[2] * halfExtents.z);
-            pa.add(center);
-
-            var otherCoord = j % 3;
-            edgeCoord[otherCoord] = edgeCoord[otherCoord] * -1;
-            var pb = new THREE.Vector3(
-                edgeCoord[0] * halfExtents.x,
-                edgeCoord[1] * halfExtents.y,
-                edgeCoord[2] * halfExtents.z);
-            pb.add(center);
-
-            p.vertices.push(pa, pb);
-        }
-
-        edgeCoord = [-1, -1, -1];
-
-        if (i < 3) {
-            edgeCoord[i] = edgeCoord[i] * -1;
+    function stringToColor(str) {
+        switch (str) {
+        case 'red':
+            return 0xFF0000;
+        case 'green':
+            return 0x00FF00;
+        case 'blue':
+            return 0x0000FF;
+        case 'yellow':
+            return 0xFFFF00;
+        case 'magenta':
+            return 0xFF00FF;
+        case 'cyan':
+            return 0x00FFFF;
+        case 'white':
+            return 0xFFFFFF;
+        default:
+            return 0x000000;
         }
     }
 
-    renderer.addPrimitive(p);
-}
+    function toColor(arg) {
+        if (typeof arg == 'string') {
+            return stringToColor(arg);
+        } else {
+            return arg;
+        }
+    }
 
-/**
- * Draw a sphere at pos with radius r.
- */
-function _drawSphere(pos, r, color) {
-    var p = new Primitive();
-    p.color = toColor(color);
+    /**
+     * Draws a single line from v0 to v1 with the given color.
+     *
+     * Each point is a THREE.Vector3 object.
+     */
+    function _drawLine(v0, v1, color) {
+        var p = new Primitive();
 
-    // Decreasing these angles will increase complexity of sphere.
-    var dtheta = 35; var dphi = 35;
+        p.vertices = [v0, v1];
+        p.color = toColor(color);
 
-    for (var theta = -90; theta <= (90 - dtheta); theta += dtheta) {
-        for (var phi = 0; phi <= (360 - dphi); phi += dphi) {
-            p.vertices.push(new THREE.Vector3(
-                pos.x + r * Math.cos(theta * DEG_TO_RAD) * Math.cos(phi * DEG_TO_RAD),
-                pos.y + r * Math.cos(theta * DEG_TO_RAD) * Math.sin(phi * DEG_TO_RAD),
-                pos.z + r * Math.sin(theta * DEG_TO_RAD)
-            ));
+        renderer.addPrimitive(p);
+    }
 
-            p.vertices.push(new THREE.Vector3(
-                pos.x + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.cos(phi * DEG_TO_RAD),
-                pos.y + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.sin(phi * DEG_TO_RAD),
-                pos.z + r * Math.sin((theta + dtheta) * DEG_TO_RAD)
-            ));
+    /**
+     * Draws a strip of connected lines using the specified points[].
+     *
+     * Each point is a THREE.Vector3 object.
+     */
+    function _drawLineStrip(points, color) {
+        if (points.length < 2) {
+            console.error('Line strips must have at least 2 points.');
+            return;
+        }
 
-            p.vertices.push(new THREE.Vector3(
-                pos.x + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.cos((phi + dphi) * DEG_TO_RAD),
-                pos.y + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.sin((phi + dphi) * DEG_TO_RAD),
-                pos.z + r * Math.sin((theta + dtheta) * DEG_TO_RAD)
-            ));
+        var p = new Primitive();
 
-            if ((theta > -90) && (theta < 90)) {
-                p.vertices.push(new THREE.Vector3(
-                    pos.x + r * Math.cos(theta * DEG_TO_RAD) * Math.cos((phi + dphi) * DEG_TO_RAD),
-                    pos.y + r * Math.cos(theta * DEG_TO_RAD) * Math.sin((phi + dphi) * DEG_TO_RAD),
-                    pos.z + r * Math.sin(theta * DEG_TO_RAD)
-                ));
+        p.vertices = points;
+        p.color = toColor(color);
+
+        renderer.addPrimitive(p);
+    }
+
+    /**
+     * Draws an arrow pointing from pStart to pEnd.
+     * Specify the size of the arrow with arrowSize.
+     */
+    function _drawArrow(pStart, pEnd, arrowSize, color) {
+        var p = new Primitive();
+        p.color = toColor(color);
+
+        p.vertices.push(pStart);
+        p.vertices.push(pEnd);
+
+        var dir = new THREE.Vector3();
+        dir.subVectors(pEnd, pStart);
+        dir.normalize();
+
+        var right = new THREE.Vector3();
+        var dot = dir.dot(UNIT_Y);
+        if (dot > 0.99 || dot < -0.99) {
+            right.crossVectors(dir, UNIT_X);
+        } else {
+            right.crossVectors(dir, UNIT_Y);
+        }
+
+        var top = new THREE.Vector3();
+        top.crossVectors(right, dir);
+
+        dir.multiplyScalar(arrowSize);
+        right.multiplyScalar(arrowSize);
+        top.multiplyScalar(arrowSize);
+
+        // Right slant.
+        var tmp = new THREE.Vector3();
+        p.vertices.push(pEnd);
+        p.vertices.push(tmp.addVectors(pEnd, right).sub(dir));
+
+        // Left slant.
+        tmp = new THREE.Vector3();
+        p.vertices.push(pEnd);
+        p.vertices.push(tmp.subVectors(pEnd, right).sub(dir));
+
+        // Top slant.
+        tmp = new THREE.Vector3();
+        p.vertices.push(pEnd);
+        p.vertices.push(tmp.addVectors(pEnd, top).sub(dir));
+
+        // Bottom slant.
+        tmp = new THREE.Vector3();
+        p.vertices.push(pEnd);
+        p.vertices.push(tmp.subVectors(pEnd, top).sub(dir));
+
+        renderer.addPrimitive(p);
+    }
+
+    /**
+     * Draws a bounding box defined by the min/max coordinates.
+     *
+     * min/max are THREE.Vector3 objects.
+     */
+    function _drawBoundingBox(min, max, color) {
+        var p = new Primitive();
+        p.color = toColor(color);
+
+        var halfExtents = new THREE.Vector3();
+        halfExtents.subVectors(max, min);
+        halfExtents.multiplyScalar(0.5);
+        var center = new THREE.Vector3();
+        center.addVectors(max, min);
+        center.multiplyScalar(0.5);
+
+        var edgeCoord = [1, 1, 1];
+
+        for (var i = 0; i < 4; i++) {
+            for (var j = 0; j < 3; j++) {
+                var pa = new THREE.Vector3(
+                    edgeCoord[0] * halfExtents.x,
+                    edgeCoord[1] * halfExtents.y,
+                    edgeCoord[2] * halfExtents.z);
+                pa.add(center);
+
+                var otherCoord = j % 3;
+                edgeCoord[otherCoord] = edgeCoord[otherCoord] * -1;
+                var pb = new THREE.Vector3(
+                    edgeCoord[0] * halfExtents.x,
+                    edgeCoord[1] * halfExtents.y,
+                    edgeCoord[2] * halfExtents.z);
+                pb.add(center);
+
+                p.vertices.push(pa, pb);
+            }
+
+            edgeCoord = [-1, -1, -1];
+
+            if (i < 3) {
+                edgeCoord[i] = edgeCoord[i] * -1;
             }
         }
+
+        renderer.addPrimitive(p);
     }
 
-    renderer.addPrimitive(p);
-}
+    /**
+     * Draw a sphere at pos with radius r.
+     */
+    function _drawSphere(pos, r, color) {
+        var p = new Primitive();
+        p.color = toColor(color);
 
-/**
- * Render all objects drawn this frame into the scene.
- */
-function _render(scene) {
-    renderer.update(scene);
-}
+        // Decreasing these angles will increase complexity of sphere.
+        var dtheta = 35; var dphi = 35;
 
-module.exports = {
-    drawLine: _drawLine,
-    drawLineStrip: _drawLineStrip,
-    drawArrow: _drawArrow,
-    drawBoundingBox: _drawBoundingBox,
-    drawSphere: _drawSphere,
-    render: _render
-};
+        for (var theta = -90; theta <= (90 - dtheta); theta += dtheta) {
+            for (var phi = 0; phi <= (360 - dphi); phi += dphi) {
+                p.vertices.push(new THREE.Vector3(
+                    pos.x + r * Math.cos(theta * DEG_TO_RAD) * Math.cos(phi * DEG_TO_RAD),
+                    pos.y + r * Math.cos(theta * DEG_TO_RAD) * Math.sin(phi * DEG_TO_RAD),
+                    pos.z + r * Math.sin(theta * DEG_TO_RAD)
+                ));
 
-},{"./lib/renderer":2,"three":3}],2:[function(require,module,exports){
-var THREE = require('three');
+                p.vertices.push(new THREE.Vector3(
+                    pos.x + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.cos(phi * DEG_TO_RAD),
+                    pos.y + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.sin(phi * DEG_TO_RAD),
+                    pos.z + r * Math.sin((theta + dtheta) * DEG_TO_RAD)
+                ));
 
-var activePrimitives = [];
-var activeMesh = null;
+                p.vertices.push(new THREE.Vector3(
+                    pos.x + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.cos((phi + dphi) * DEG_TO_RAD),
+                    pos.y + r * Math.cos((theta + dtheta) * DEG_TO_RAD) * Math.sin((phi + dphi) * DEG_TO_RAD),
+                    pos.z + r * Math.sin((theta + dtheta) * DEG_TO_RAD)
+                ));
 
-function Primitive() {
-    this.vertices = [];
-    this.color = 0x000000;
-}
-
-function _addPrimitive(p) {
-    activePrimitives.push(p);
-}
-
-function constructGeometry() {
-    var positions = [];
-    var colors = [];
-    var indices = [];
-
-    // Collect all primitives into geometry buffers.
-    var i, j;
-    var indexOffset = 0;
-    for (i = 0; i < activePrimitives.length; i++) {
-        var p = activePrimitives[i];
-
-        // Vertices/colors.
-        for (j = 0; j < p.vertices.length; j++) {
-            var v = p.vertices[j];
-            positions.push(v.x, v.y, v.z);
-            colors.push(p.color & 0xFF0000, p.color & 0xFF00, p.color & 0xFF);
+                if ((theta > -90) && (theta < 90)) {
+                    p.vertices.push(new THREE.Vector3(
+                        pos.x + r * Math.cos(theta * DEG_TO_RAD) * Math.cos((phi + dphi) * DEG_TO_RAD),
+                        pos.y + r * Math.cos(theta * DEG_TO_RAD) * Math.sin((phi + dphi) * DEG_TO_RAD),
+                        pos.z + r * Math.sin(theta * DEG_TO_RAD)
+                    ));
+                }
+            }
         }
 
-        // Indices.
-        for (j = 0; j < p.vertices.length - 1; j++) {
-            indices.push(indexOffset + j, indexOffset + j + 1);
-        }
-        indexOffset += p.vertices.length;
+        renderer.addPrimitive(p);
     }
 
-    // Construct geometry.
-    var indicesAttr = new THREE.Uint16Attribute(indices.length, 1);
-        indicesAttr.set(indices);
-    var positionsAttr = new THREE.Float32Attribute(positions.length / 3, 3);
-        positionsAttr.set(positions);
-    var colorsAttr = new THREE.Float32Attribute(colors.length / 3, 3);
-        colorsAttr.set(colors);
-
-    var geometry = new THREE.BufferGeometry();
-    geometry.addAttribute( 'index', indicesAttr);
-    geometry.addAttribute( 'position', positionsAttr);
-    geometry.addAttribute( 'color', colorsAttr);
-    geometry.computeBoundingSphere();
-    return geometry;
-}
-
-function _update(scene) {
-    if (activeMesh !== null) {
-        scene.remove(activeMesh);
+    /**
+     * Render all objects drawn this frame into the scene.
+     */
+    function _render(scene) {
+        renderer.update(scene);
     }
 
-    if (activePrimitives.length === 0) {
-        return;
-    }
-
-    // Create geometry and add to scene.
-    var geometry = constructGeometry();
-    var material = new THREE.LineBasicMaterial({ vertexColors: true });
-    activeMesh = new THREE.Line(geometry, material, THREE.LinePieces);
-    scene.add(activeMesh);
-
-    // Clear primitives from this frame.
-    activePrimitives = [];
-}
-
-module.exports = {
-    Primitive: Primitive,
-    addPrimitive: _addPrimitive,
-    update: _update
+    return {
+        drawLine: _drawLine,
+        drawLineStrip: _drawLineStrip,
+        drawArrow: _drawArrow,
+        drawBoundingBox: _drawBoundingBox,
+        drawSphere: _drawSphere,
+        render: _render
+    };
 };
 
-},{"three":3}],3:[function(require,module,exports){
+},{"./lib/renderer":2}],2:[function(require,module,exports){
+module.exports = function(THREE) {
+    var activePrimitives = [];
+    var activeMesh = null;
+
+    function Primitive() {
+        this.vertices = [];
+        this.color = 0x000000;
+    }
+
+    function _addPrimitive(p) {
+        activePrimitives.push(p);
+    }
+
+    function constructGeometry() {
+        var positions = [];
+        var colors = [];
+        var indices = [];
+
+        // Collect all primitives into geometry buffers.
+        var i, j;
+        var indexOffset = 0;
+        for (i = 0; i < activePrimitives.length; i++) {
+            var p = activePrimitives[i];
+
+            // Vertices/colors.
+            for (j = 0; j < p.vertices.length; j++) {
+                var v = p.vertices[j];
+                positions.push(v.x, v.y, v.z);
+                colors.push(p.color & 0xFF0000, p.color & 0xFF00, p.color & 0xFF);
+            }
+
+            // Indices.
+            for (j = 0; j < p.vertices.length - 1; j++) {
+                indices.push(indexOffset + j, indexOffset + j + 1);
+            }
+            indexOffset += p.vertices.length;
+        }
+
+        // Construct geometry.
+        var indicesAttr = new THREE.Uint16Attribute(indices.length, 1);
+            indicesAttr.set(indices);
+        var positionsAttr = new THREE.Float32Attribute(positions.length / 3, 3);
+            positionsAttr.set(positions);
+        var colorsAttr = new THREE.Float32Attribute(colors.length / 3, 3);
+            colorsAttr.set(colors);
+
+        var geometry = new THREE.BufferGeometry();
+        geometry.addAttribute( 'index', indicesAttr);
+        geometry.addAttribute( 'position', positionsAttr);
+        geometry.addAttribute( 'color', colorsAttr);
+        geometry.computeBoundingSphere();
+        return geometry;
+    }
+
+    function _update(scene) {
+        if (activeMesh !== null) {
+            scene.remove(activeMesh);
+        }
+
+        if (activePrimitives.length === 0) {
+            return;
+        }
+
+        // Create geometry and add to scene.
+        var geometry = constructGeometry();
+        var material = new THREE.LineBasicMaterial({ vertexColors: true });
+        activeMesh = new THREE.Line(geometry, material, THREE.LinePieces);
+        scene.add(activeMesh);
+
+        // Clear primitives from this frame.
+        activePrimitives = [];
+    }
+
+    return {
+        Primitive: Primitive,
+        addPrimitive: _addPrimitive,
+        update: _update
+    };
+};
+
+},{}],3:[function(require,module,exports){
 var self = self || {};/**
  * @author mrdoob / http://mrdoob.com/
  * @author Larry Battle / http://bateru.com/news
@@ -38817,8 +38818,8 @@ if (typeof exports !== 'undefined') {
 }
 
 },{}],4:[function(require,module,exports){
-var DbgDraw = require('./../index'),
-    THREE = require('three');
+var THREE = require('three'),
+    DbgDraw = require('./../index')(THREE);
 
 var container, stats;
 var camera, scene, renderer;
