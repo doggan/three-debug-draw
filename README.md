@@ -26,7 +26,8 @@ npm install three-debug-draw
 
 ```javascript
 // 1). Require the package.
-var DbgDraw = require('three-debug-draw');
+var THREE = require('three'),
+    DbgDraw = require('three-debug-draw')(THREE);
 
 function render() {
     // 2). Update the debug drawer.
