@@ -231,10 +231,10 @@ module.exports = function(THREE) {
 };
 
 },{"./lib/renderer":2}],2:[function(require,module,exports){
-module.exports = function(THREE) {
-    var activePrimitives = [];
-    var activeMesh = null;
+var activePrimitives = [];
+var activeMesh = null;
 
+module.exports = function(THREE) {
     function Primitive() {
         this.vertices = [];
         this.color = 0x000000;
@@ -288,6 +288,7 @@ module.exports = function(THREE) {
     function _update(scene) {
         if (activeMesh !== null) {
             scene.remove(activeMesh);
+            activeMesh = null;
         }
 
         if (activePrimitives.length === 0) {
