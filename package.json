@@ -29,6 +29,6 @@
   "license": "MIT",
   "devDependencies": {
     "browserify": "^4.2.0",
-    "three": "^0.67.0"
+    "three": "^0.71.0"
   }
 }
